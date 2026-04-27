@@ -1,0 +1,38 @@
+# Virtual environment
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Environment files (handled by docker-compose)
+.env
+.env.local
+.env.*
+
+# Data directory (mounted as volume)
+data/
+
+# Tests
+tests/
+pytest.ini
+.pytest_cache
+
+# Documentation
+*.md
+docs/
+
+# Misc
+.DS_Store
+*.log
