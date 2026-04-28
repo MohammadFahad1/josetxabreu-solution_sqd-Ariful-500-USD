@@ -8,7 +8,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     restart: unless-stopped
     networks:
       - app-network
@@ -23,7 +23,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "7777:8000"
+      - "8000:8000"
     env_file:
       - .env
     environment:
@@ -70,4 +70,6 @@ networks:
 
 volumes:
   postgres_data:
+    external: true
+    name: automation-agent_postgres_data
   data:

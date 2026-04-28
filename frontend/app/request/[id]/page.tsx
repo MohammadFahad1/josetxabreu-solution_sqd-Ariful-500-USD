@@ -35,7 +35,7 @@ export default function RequestDetail() {
   // New flow: Category → Partner → Vehicle → Price
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | "">("");
-  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [costPrice, setCostPrice] = useState('');
   const [price, setPrice] = useState('');
   const [partnerNotes, setPartnerNotes] = useState('');

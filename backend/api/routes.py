@@ -1211,28 +1211,31 @@ def select_partner(
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    # FIX: selection.partner_id and selection.vehicle_id are now Airtable string
-    # IDs. Verify the vehicle exists and belongs to the stated partner in one
-    # query — no name-based Airtable lookup needed.
-    vehicle = db.query(VehicleDB).filter(
-        VehicleDB.id == selection.vehicle_id,
-        VehicleDB.partner_id == selection.partner_id,
-    ).first()
-    if not vehicle:
-        raise HTTPException(
-            status_code=400,
-            detail="Vehicle not found or does not belong to the specified partner",
+    # Resolve vehicle description from Airtable directly (avoids requiring
+    # local vehicle rows to be pre-synced with Airtable IDs).
+    vehicle_description = selection.vehicle_id  # fallback to ID if Airtable lookup fails
+    try:
+        cat_table = Table(
+            os.getenv("AIRTABLE_TOKEN"),
+            os.getenv("AIRTABLE_BASE_ID"),
+            CATEGORIAS_VEICULOS_TABLE_ID,
         )
+        cat_rec = cat_table.get(selection.vehicle_id)
+        fields = cat_rec.get("fields", {})
+        group_code = fields.get("Códigos SIPP") or fields.get("Group Code") or fields.get("Grupo") or ""
+        description = fields.get("Modelos de exemplo") or fields.get("Description") or fields.get("Descrição") or ""
+        vehicle_description = f"{group_code} - {description}".strip(" -") or selection.vehicle_id
+    except Exception:
+        pass  # keep fallback
 
-    # Resolve a display name from the local DB if available; fall back to the
-    # Airtable ID so the field is never empty.
+    # Resolve partner display name from local DB if available; fall back to ID.
     partner = db.query(PartnerDB).filter(PartnerDB.id == selection.partner_id).first()
     partner_name = partner.name if partner else selection.partner_id
 
     request.selected_partner_id = selection.partner_id
     request.selected_vehicle_id = selection.vehicle_id
     request.selected_partner_name = partner_name
-    request.selected_vehicle_description = f"{vehicle.group_code} - {vehicle.description}"
+    request.selected_vehicle_description = vehicle_description
     request.cost_price = selection.cost_price
     request.price = selection.price
     request.updated_at = datetime.utcnow()
@@ -1244,7 +1247,7 @@ def select_partner(
         "status": "success",
         "message": (
             f"Partner {partner_name} selected with vehicle "
-            f"{vehicle.description} — Cost: €{selection.cost_price}, "
+            f"{vehicle_description} — Cost: €{selection.cost_price}, "
             f"Client: €{selection.price}"
         ),
     }

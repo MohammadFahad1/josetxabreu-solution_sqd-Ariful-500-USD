@@ -17,7 +17,7 @@ export interface RentalRequest {
   artist_project_event: string | null;
   destination_cities: string | null;
   selected_partner_id: string | "";
-  selected_vehicle_id: number | null;
+  selected_vehicle_id: string | null;
   selected_partner_name: string | null;
   selected_vehicle_description: string | null;
   cost_price: number | null;
@@ -39,7 +39,7 @@ export interface Partner {
 }
 
 export interface Vehicle {
-  id: number;
+  id: string;
   partner_id: string;
   category: string;
   group_code: string;
@@ -101,7 +101,7 @@ export async function getPartnerVehicles(partnerId: string, category?: string): 
 export async function selectPartner(
   requestId: string,
   partnerId: string,
-  vehicleId: number,
+  vehicleId: string,
   costPrice: number,
   price: number
 ): Promise<void> {
