@@ -271,6 +271,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import Column, String, Float, DateTime, Date, Text, Integer, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from pydantic import field_validator
 
 Base = declarative_base()
 
@@ -403,6 +404,7 @@ class RentalRequestCreate(BaseModel):
 
 class RentalRequest(BaseModel):
     id: str
+    selected_vehicle_id: Optional[str] = None 
     status: RequestStatus
     client_name: Optional[str] = None
     client_email: str
@@ -427,6 +429,13 @@ class RentalRequest(BaseModel):
     internal_notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
+    @field_validator('selected_vehicle_id', mode='before')
+    @classmethod
+    def ensure_string(cls, v):
+        if v is None:
+            return None
+        return str(v)
 
     class Config:
         from_attributes = True
